@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: conduit-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-conduit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-conduit_dev_only_change_in_prod}
+      POSTGRES_DB: ${POSTGRES_DB:-conduit}
+    ports:
+      - "5432:5432"
+    volumes:
+      - conduit_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-conduit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - conduit_net
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: conduit-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-conduit}:${POSTGRES_PASSWORD:-conduit_dev_only_change_in_prod}@db:5432/${POSTGRES_DB:-conduit}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET 환경변수 필수 — .env 또는 시크릿 매니저로 주입}
+      JWT_EXP_SECONDS: ${JWT_EXP_SECONDS:-86400}
+      BCRYPT_COST: ${BCRYPT_COST:-12}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - conduit_net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: conduit-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - conduit_net
+
+volumes:
+  conduit_db_data:
+
+networks:
+  conduit_net:
+    driver: bridge
