@@ -1,10 +1,18 @@
 import bcrypt from 'bcrypt';
 
 import { getEnv } from '../config/env.js';
-import { ConflictError, ValidationError } from '../errors/index.js';
+import { ConflictError, NotFoundError, ValidationError } from '../errors/index.js';
+import * as followRepo from '../repos/followRepo.js';
 import * as userRepo from '../repos/userRepo.js';
 import type { AuthUser } from '../repos/userRepo.js';
 import { sign } from './jwtService.js';
+
+export interface ProfileResponse {
+  username: string;
+  bio: string;
+  image: string | null;
+  following: boolean;
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN = 8;
@@ -62,6 +70,33 @@ export async function register(input: {
 
   const token = sign(user.id);
   return toResponse(userRepo.toAuthUser(user), token);
+}
+
+export async function getProfile(
+  username: string,
+  viewerId: number | null,
+): Promise<ProfileResponse> {
+  const target = await userRepo.findByUsername(username);
+  if (!target) throw new NotFoundError('profile not found');
+  const following = viewerId === null ? false : await followRepo.exists(viewerId, target.id);
+  return { username: target.username, bio: target.bio, image: target.image, following };
+}
+
+export async function follow(viewerId: number, targetUsername: string): Promise<ProfileResponse> {
+  const target = await userRepo.findByUsername(targetUsername);
+  if (!target) throw new NotFoundError('profile not found');
+  if (target.id === viewerId) {
+    throw new ValidationError('body', 'cannot follow yourself');
+  }
+  await followRepo.create(viewerId, target.id);
+  return { username: target.username, bio: target.bio, image: target.image, following: true };
+}
+
+export async function unfollow(viewerId: number, targetUsername: string): Promise<ProfileResponse> {
+  const target = await userRepo.findByUsername(targetUsername);
+  if (!target) throw new NotFoundError('profile not found');
+  await followRepo.remove(viewerId, target.id);
+  return { username: target.username, bio: target.bio, image: target.image, following: false };
 }
 
 export async function getCurrent(userId: number): Promise<AuthUserResponse> {
