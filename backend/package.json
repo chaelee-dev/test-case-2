@@ -10,9 +10,16 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.13.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "pino": "^9.1.0",
@@ -26,6 +33,7 @@
     "@types/node": "^20.12.7",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.8",
+    "prisma": "^5.13.0",
     "supertest": "^7.0.0",
     "tsx": "^4.7.2",
     "typescript": "^5.4.5",
