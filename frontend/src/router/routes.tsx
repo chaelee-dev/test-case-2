@@ -8,36 +8,43 @@ import { ArticlePage } from '../pages/ArticlePage.js';
 import { ProfilePage } from '../pages/ProfilePage.js';
 import { NotFoundPage } from '../pages/NotFoundPage.js';
 import { ProtectedRoute } from './ProtectedRoute.js';
+import { RootLayout } from './RootLayout.js';
 
 export const router = createBrowserRouter([
-  { path: '/', element: <HomePage /> },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
   {
-    path: '/settings',
-    element: (
-      <ProtectedRoute>
-        <SettingsPage />
-      </ProtectedRoute>
-    ),
+    path: '/',
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
+      {
+        path: 'settings',
+        element: (
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'editor',
+        element: (
+          <ProtectedRoute>
+            <EditorPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'editor/:slug',
+        element: (
+          <ProtectedRoute>
+            <EditorPage />
+          </ProtectedRoute>
+        ),
+      },
+      { path: 'article/:slug', element: <ArticlePage /> },
+      { path: 'profile/:username', element: <ProfilePage /> },
+      { path: '*', element: <NotFoundPage /> },
+    ],
   },
-  {
-    path: '/editor',
-    element: (
-      <ProtectedRoute>
-        <EditorPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/editor/:slug',
-    element: (
-      <ProtectedRoute>
-        <EditorPage />
-      </ProtectedRoute>
-    ),
-  },
-  { path: '/article/:slug', element: <ArticlePage /> },
-  { path: '/profile/:username', element: <ProfilePage /> },
-  { path: '*', element: <NotFoundPage /> },
 ]);
