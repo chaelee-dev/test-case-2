@@ -2,7 +2,16 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 
 import { optionalAuth, requireAuth } from '../middleware/auth.js';
 import { ValidationError } from '../errors/index.js';
-import { list, getBySlug, create, update, remove, feed } from '../services/articleService.js';
+import {
+  list,
+  getBySlug,
+  create,
+  update,
+  remove,
+  feed,
+  favorite,
+  unfavorite,
+} from '../services/articleService.js';
 
 export const articlesRouter = Router();
 
@@ -85,6 +94,32 @@ articlesRouter.delete(
     try {
       await remove(req.user!.id, req.params.slug!);
       res.status(200).json({});
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+articlesRouter.post(
+  '/:slug/favorite',
+  requireAuth,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const article = await favorite(req.user!.id, req.params.slug!);
+      res.status(200).json({ article });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+articlesRouter.delete(
+  '/:slug/favorite',
+  requireAuth,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const article = await unfavorite(req.user!.id, req.params.slug!);
+      res.status(200).json({ article });
     } catch (err) {
       next(err);
     }
