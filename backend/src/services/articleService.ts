@@ -140,6 +140,24 @@ export async function feed(
   return { articles: views, articlesCount: total };
 }
 
+export async function favorite(viewerId: number, slug: string): Promise<ArticleView> {
+  const article = await articleRepo.findBySlug(slug);
+  if (!article) throw new NotFoundError('article not found');
+  await favoriteRepo.create(viewerId, article.id);
+  const reloaded = await articleRepo.findById(article.id);
+  const views = await buildViews([reloaded!], viewerId, true);
+  return views[0]!;
+}
+
+export async function unfavorite(viewerId: number, slug: string): Promise<ArticleView> {
+  const article = await articleRepo.findBySlug(slug);
+  if (!article) throw new NotFoundError('article not found');
+  await favoriteRepo.remove(viewerId, article.id);
+  const reloaded = await articleRepo.findById(article.id);
+  const views = await buildViews([reloaded!], viewerId, true);
+  return views[0]!;
+}
+
 export async function getBySlug(slug: string, viewerId: number | null): Promise<ArticleView> {
   const article = await articleRepo.findBySlug(slug);
   if (!article) throw new NotFoundError('article not found');
