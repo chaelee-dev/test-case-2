@@ -3,6 +3,7 @@ import express, { type Express, type Request, type Response, type Router } from 
 import { corsMiddleware } from './middleware/cors.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import { usersRouter } from './routes/users.js';
 
 export interface CreateAppOptions {
   /**
@@ -22,6 +23,8 @@ export function createApp(options: CreateAppOptions = {}): Express {
   app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'ok' });
   });
+
+  app.use('/api/users', usersRouter);
 
   options.mountExtraRoutes?.(app);
 
