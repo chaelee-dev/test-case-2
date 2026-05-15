@@ -6,6 +6,7 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { articlesRouter } from './routes/articles.js';
 import { commentsRouter } from './routes/comments.js';
 import { profilesRouter } from './routes/profiles.js';
+import { tagsRouter } from './routes/tags.js';
 import { usersRouter, userRouter } from './routes/users.js';
 
 export interface CreateAppOptions {
@@ -32,6 +33,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
   app.use('/api/profiles', profilesRouter);
   app.use('/api/articles', articlesRouter);
   app.use('/api/articles/:slug/comments', commentsRouter);
+  app.use('/api/tags', tagsRouter);
 
   options.mountExtraRoutes?.(app);
 
