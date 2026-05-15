@@ -64,6 +64,64 @@ export async function register(input: {
   return toResponse(userRepo.toAuthUser(user), token);
 }
 
+export async function getCurrent(userId: number): Promise<AuthUserResponse> {
+  const user = await userRepo.findById(userId);
+  if (!user) throw new ValidationError('body', 'user not found');
+  const token = sign(user.id);
+  return toResponse(userRepo.toAuthUser(user), token);
+}
+
+export async function updateCurrent(
+  userId: number,
+  patch: {
+    username?: string;
+    email?: string;
+    password?: string;
+    bio?: string;
+    image?: string | null;
+  },
+): Promise<AuthUserResponse> {
+  const existing = await userRepo.findById(userId);
+  if (!existing) throw new ValidationError('body', 'user not found');
+
+  const data: Parameters<typeof userRepo.update>[1] = {};
+
+  if (patch.username !== undefined && patch.username !== existing.username) {
+    if (!patch.username || patch.username.trim().length === 0) {
+      throw new ValidationError('username', "can't be empty");
+    }
+    if (await userRepo.findByUsername(patch.username)) {
+      throw new ConflictError('username', 'has already been taken');
+    }
+    data.username = patch.username;
+  }
+
+  if (patch.email !== undefined && patch.email !== existing.email) {
+    if (!EMAIL_RE.test(patch.email)) {
+      throw new ValidationError('email', 'is invalid');
+    }
+    if (await userRepo.findByEmail(patch.email)) {
+      throw new ConflictError('email', 'has already been taken');
+    }
+    data.email = patch.email;
+  }
+
+  if (patch.password !== undefined && patch.password.length > 0) {
+    if (patch.password.length < PASSWORD_MIN) {
+      throw new ValidationError('password', `is too short (minimum is ${PASSWORD_MIN} characters)`);
+    }
+    const env = getEnv();
+    data.passwordHash = await bcrypt.hash(patch.password, env.BCRYPT_COST);
+  }
+
+  if (patch.bio !== undefined) data.bio = patch.bio;
+  if (patch.image !== undefined) data.image = patch.image;
+
+  const updated = Object.keys(data).length > 0 ? await userRepo.update(userId, data) : existing;
+  const token = sign(updated.id);
+  return toResponse(userRepo.toAuthUser(updated), token);
+}
+
 export async function login(input: {
   email: string;
   password: string;
