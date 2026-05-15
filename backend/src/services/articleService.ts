@@ -6,6 +6,8 @@ import * as articleRepo from '../repos/articleRepo.js';
 import type { ArticleWithRelations } from '../repos/articleRepo.js';
 import * as favoriteRepo from '../repos/favoriteRepo.js';
 import * as followRepo from '../repos/followRepo.js';
+import * as tagRepo from '../repos/tagRepo.js';
+import { slugify, withSuffix } from '../util/slug.js';
 
 export interface ArticleAuthorView {
   username: string;
@@ -114,5 +116,45 @@ export async function getBySlug(slug: string, viewerId: number | null): Promise<
   const article = await articleRepo.findBySlug(slug);
   if (!article) throw new NotFoundError('article not found');
   const views = await buildViews([article], viewerId, true);
+  return views[0]!;
+}
+
+async function generateUniqueSlug(title: string): Promise<string> {
+  const base = slugify(title);
+  if (!(await articleRepo.existsBySlug(base))) return base;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const candidate = withSuffix(base, title, Date.now() + attempt);
+    if (!(await articleRepo.existsBySlug(candidate))) return candidate;
+  }
+  throw new ValidationError('slug', 'could not generate unique slug after 3 attempts');
+}
+
+export async function create(
+  authorId: number,
+  input: { title?: string; description?: string; body?: string; tagList?: string[] },
+): Promise<ArticleView> {
+  if (!input.title || input.title.trim().length === 0) {
+    throw new ValidationError('title', "can't be empty");
+  }
+  if (!input.description || input.description.trim().length === 0) {
+    throw new ValidationError('description', "can't be empty");
+  }
+  if (!input.body || input.body.trim().length === 0) {
+    throw new ValidationError('body', "can't be empty");
+  }
+
+  const slug = await generateUniqueSlug(input.title);
+  const tags = input.tagList ? await tagRepo.ensureTags(input.tagList) : [];
+
+  const article = await articleRepo.create({
+    slug,
+    title: input.title,
+    description: input.description,
+    body: input.body,
+    authorId,
+    tagIds: tags.map((t) => t.id),
+  });
+
+  const views = await buildViews([article], authorId, true);
   return views[0]!;
 }

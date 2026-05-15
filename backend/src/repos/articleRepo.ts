@@ -55,3 +55,29 @@ export async function findById(id: number): Promise<ArticleWithRelations | null>
     include: { author: true, tags: { include: { tag: true } } },
   });
 }
+
+export async function create(input: {
+  slug: string;
+  title: string;
+  description: string;
+  body: string;
+  authorId: number;
+  tagIds: number[];
+}): Promise<ArticleWithRelations> {
+  return getPrisma().article.create({
+    data: {
+      slug: input.slug,
+      title: input.title,
+      description: input.description,
+      body: input.body,
+      authorId: input.authorId,
+      tags: { create: input.tagIds.map((tagId) => ({ tagId })) },
+    },
+    include: { author: true, tags: { include: { tag: true } } },
+  });
+}
+
+export async function existsBySlug(slug: string): Promise<boolean> {
+  const found = await getPrisma().article.findUnique({ where: { slug }, select: { id: true } });
+  return found !== null;
+}
