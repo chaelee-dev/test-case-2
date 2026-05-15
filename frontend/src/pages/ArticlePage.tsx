@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { deleteArticle, favoriteArticle, getArticle, unfavoriteArticle } from '../api/endpoints/articles.js';
+import { listComments, createComment, deleteComment } from '../api/endpoints/comments.js';
 import { parseApiErrors } from '../api/parseErrors.js';
 import { renderMarkdown } from '../markdown/render.js';
 import { ErrorList } from '../components/ErrorList.js';
-import type { Article } from '../types/domain.js';
+import { CommentForm } from '../components/CommentForm.js';
+import { CommentItem } from '../components/CommentItem.js';
+import type { Article, Comment } from '../types/domain.js';
 import { useAuth } from '../auth/useAuth.js';
 
 export function ArticlePage() {
@@ -12,6 +15,7 @@ export function ArticlePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -22,7 +26,30 @@ export function ArticlePage() {
       .then((res) => setArticle(res.article))
       .catch((err) => setErrors(parseApiErrors(err)))
       .finally(() => setLoading(false));
+    listComments(slug)
+      .then((res) => setComments(res.comments))
+      .catch(() => setComments([]));
   }, [slug]);
+
+  async function onAddComment(body: string) {
+    if (!slug) return;
+    try {
+      const res = await createComment(slug, body);
+      setComments((prev) => [res.comment, ...prev]);
+    } catch (err) {
+      setErrors(parseApiErrors(err));
+    }
+  }
+
+  async function onDeleteComment(id: number) {
+    if (!slug) return;
+    try {
+      await deleteComment(slug, id);
+      setComments((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      setErrors(parseApiErrors(err));
+    }
+  }
 
   async function toggleFavorite() {
     if (!article || !user) return;
@@ -108,6 +135,29 @@ export function ArticlePage() {
             </li>
           ))}
         </ul>
+        <hr />
+        <div className="row">
+          <div className="col-xs-12 col-md-8 offset-md-2">
+            {user ? (
+              <CommentForm onSubmit={onAddComment} />
+            ) : (
+              <p>
+                <Link to="/login">Sign in</Link> or <Link to="/register">sign up</Link> to add comments.
+              </p>
+            )}
+            {comments.map((c) => (
+              <CommentItem
+                key={c.id}
+                comment={c}
+                canDelete={
+                  user !== null &&
+                  (user.username === c.author.username || user.username === article.author.username)
+                }
+                onDelete={onDeleteComment}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
