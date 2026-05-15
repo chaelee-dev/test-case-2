@@ -41,3 +41,16 @@ export async function create(input: {
     },
   });
 }
+
+export async function update(
+  id: number,
+  patch: {
+    username?: string;
+    email?: string;
+    passwordHash?: string;
+    bio?: string;
+    image?: string | null;
+  },
+): Promise<User> {
+  return getPrisma().user.update({ where: { id }, data: patch });
+}
