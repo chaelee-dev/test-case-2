@@ -1,0 +1,16 @@
+{
+  "name": "@conduit/e2e",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:newman": "echo 'newman: pending Sprint 2 (ISS-CI-01 placeholder)' && exit 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.43.1",
+    "newman": "^6.1.2",
+    "typescript": "^5.4.5"
+  }
+}
