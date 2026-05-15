@@ -1,0 +1,110 @@
+// RealWorld Conduit — Prisma schema
+// 04 SRS §5 정합. 5 entity + 2 join table.
+// dev: SQLite (file:./conduit.db) / prod: PostgreSQL (DATABASE_URL env)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  bio          String   @default("")
+  image        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  articles   Article[]
+  comments   Comment[]
+  favorites  Favorite[]
+  followers  Follow[]  @relation("FollowFollowee") // 본 user를 따르는 사용자들
+  following  Follow[]  @relation("FollowFollower") // 본 user가 따르는 사용자들
+
+  @@map("users")
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  description String
+  body        String
+  authorId    Int      @map("author_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  author    User         @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+  favorites Favorite[]
+  tags      ArticleTag[]
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@map("articles")
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  articles ArticleTag[]
+
+  @@map("tags")
+}
+
+model ArticleTag {
+  articleId Int @map("article_id")
+  tagId     Int @map("tag_id")
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  articleId Int      @map("article_id")
+  authorId  Int      @map("author_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@index([articleId])
+  @@map("comments")
+}
+
+model Favorite {
+  userId    Int @map("user_id")
+  articleId Int @map("article_id")
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, articleId])
+  @@index([articleId])
+  @@map("favorites")
+}
+
+model Follow {
+  followerId Int @map("follower_id")
+  followeeId Int @map("followee_id")
+
+  follower User @relation("FollowFollower", fields: [followerId], references: [id])
+  followee User @relation("FollowFollowee", fields: [followeeId], references: [id])
+
+  @@id([followerId, followeeId])
+  @@map("follows")
+}
