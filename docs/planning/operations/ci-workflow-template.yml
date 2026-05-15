@@ -1,0 +1,84 @@
+# ============================================================
+# 본 파일은 .github/workflows/ci.yml의 *템플릿*입니다.
+# OAuth `workflow` scope 제약으로 본 PR(automated)에서 직접 push 불가.
+# 사용자가 1회 다음을 수동 실행:
+#
+#   ! gh auth refresh -s workflow
+#   cp docs/planning/operations/ci-workflow-template.yml .github/workflows/ci.yml
+#   git add .github/workflows/ci.yml
+#   git commit -m "chore(infra): activate CI workflow (#3)"
+#   git push
+#
+# ISS-CI-01 BLOCKED 해소 후 본 파일은 운영 docs로 유지.
+# ============================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint + Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -w lint
+
+  typecheck:
+    name: TypeScript typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+
+  test:
+    name: Unit + Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r test
+
+  newman:
+    name: Newman (RealWorld 컬렉션 회귀)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @conduit/e2e test:newman
