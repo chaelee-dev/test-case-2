@@ -3,39 +3,39 @@
 # 이 파일은 PRD에 없을 때의 기본값(fallback)으로 사용된다.
 
 project:
-  name: ""
-  description: ""
+  name: "conduit-monorepo"
+  description: "RealWorld Conduit — Medium 클론 SPA + REST API (TypeScript pnpm 워크스페이스)"
   type: "fullstack"                    # fullstack | frontend | backend | library
 
 tech_stack:
   frontend:
-    framework: "react"                 # react | vue | next | angular | svelte
-    version: "19"                      # 최신 스테이블 (기본값)
+    framework: "react"
+    version: "18"                      # 06-architecture §Stack Decision
     language: "typescript"
     build_tool: "vite"
-    styling: "tailwindcss"
-    state_management: "zustand"        # zustand | redux-toolkit | recoil | jotai
+    styling: "bootstrap"               # RealWorld 공식 main.css (Bootstrap-like)
+    state_management: "react-context"  # M-FE-AuthCtx — zustand/redux 미도입 (도메인 작음, ADR 시 검토)
     testing: "vitest"
     e2e_testing: "playwright"
-    linting: "eslint"
-    formatting: "prettier"
+    linting: "eslint"                  # ISS-INFRA-02에서 설정
+    formatting: "prettier"             # ISS-INFRA-02에서 설정
 
   backend:
-    framework: "springboot"            # springboot | express | fastapi | nestjs
-    version: "3.4"                     # 최신 스테이블 (기본값)
-    language: "java"                   # java | kotlin | typescript | python
-    java_version: "21"
-    build_tool: "gradle"
-    database: "postgresql"
-    orm: "jpa"
-    cache: "redis"                     # redis | none
-    testing: "junit5"
-    api_docs: "springdoc-openapi"
+    framework: "express"               # 06-architecture §Stack Decision
+    version: "4"
+    language: "typescript"
+    node_version: "20"
+    build_tool: "tsc"
+    database: "postgresql"             # prod. dev은 sqlite (ISS-BE-INIT-02에서 양방 지원)
+    orm: "prisma"
+    cache: "none"
+    testing: "vitest"
+    api_docs: "none"                   # RealWorld 공식 Postman 컬렉션이 정본
 
   infrastructure:
     containerization: "docker"
     ci_cd: "github-actions"
-    cloud: ""                          # aws | gcp | azure | none
+    cloud: ""
 
 # ============================================================
 # 아키텍처 패턴
@@ -43,22 +43,11 @@ tech_stack:
 # ============================================================
 architecture:
   frontend:
-    pattern: "feature-based"           # feature-based | atomic | fsd | atomic-fsd
-    # feature-based: features/{feature}/components,hooks,types (기본, 중소규모)
-    # atomic: atoms/molecules/organisms/templates/pages (UI 컴포넌트 중심)
-    # fsd: Feature-Sliced Design (app/processes/pages/widgets/features/entities/shared)
-    # atomic-fsd: Atomic + FSD 혼합 (대규모 프로젝트)
-    ui_library: ""                     # shadcn | mui | antd | chakra | none
-    # shadcn: Radix UI + TailwindCSS 기반 (커스터마이징 용이)
-    # mui: Material UI (Google Material Design)
-    # antd: Ant Design (엔터프라이즈)
+    pattern: "pages-components-hooks"  # 12-scaffolding §3 결정 — React 관행
+    ui_library: "none"                 # RealWorld 공식 main.css만 (CDN)
 
   backend:
-    pattern: "layered"                 # layered | hexagonal | clean | ddd
-    # layered: Controller → Service → Repository → Entity (기본, 중소규모)
-    # hexagonal: Port & Adapter (외부 시스템 연동 많을 때)
-    # clean: Clean Architecture (UseCase 중심, 의존성 역전)
-    # ddd: Domain-Driven Design (복잡한 비즈니스 로직)
+    pattern: "layered"                 # 12-scaffolding §3 결정 — Routes → Services → Repos → Prisma
 
 # ============================================================
 # 코드 컨벤션
@@ -66,27 +55,29 @@ architecture:
 # ============================================================
 conventions:
   frontend:
-    component_style: "function"        # function (기본) | class
-    file_naming: "PascalCase"          # PascalCase (컴포넌트), camelCase (유틸/훅)
-    hook_prefix: "use"                 # useTodos, useAuth 등
-    api_client: "fetch"               # fetch | axios | ky
+    component_style: "function"
+    file_naming: "PascalCase"          # 컴포넌트 PascalCase, 유틸/훅 camelCase (11-conventions §3)
+    hook_prefix: "use"
+    api_client: "fetch"                # M-FE-ApiClient에서 fetch 래퍼 (axios·ky 미도입)
     error_boundary: true
     strict_mode: true
 
   backend:
-    package_base: "com.devtoolkit"     # 프로젝트별 변경
-    layer_naming:                      # 레이어별 클래스 네이밍 규칙
-      controller: "{Domain}Controller"
-      service: "{Domain}Service"
-      repository: "{Domain}Repository"
-      entity: "{Domain}"
-      dto_request: "{Domain}CreateRequest"
-      dto_response: "{Domain}Response"
-    exception_handling: "global"       # global (GlobalExceptionHandler) | per-controller
-    response_wrapper: "ApiResponse"    # 공통 응답 래퍼 클래스명
-    error_code_pattern: "{DOMAIN}_{CATEGORY}_{DETAIL}"  # AUTH_TOKEN_EXPIRED 등
-    validation: "bean-validation"      # bean-validation (@Valid) | manual
-    logging: "slf4j"                   # slf4j | log4j2
+    layer_naming:                      # 11-conventions §2 (TypeScript Express layered)
+      route: "{domain}Routes"          # 예: userRoutes (routes/users.ts)
+      service: "{Domain}Service"       # 예: UserService
+      repository: "{Domain}Repo"       # 예: UserRepo
+      entity: "{Domain}"               # Prisma 모델명
+    exception_handling: "global"       # M-BE-ErrorMapper (errorHandler 미들웨어)
+    response_wrapper: "none"           # RealWorld 사양은 raw JSON 응답 (래퍼 없음)
+    error_class_prefix:                # 11-conventions §2 표
+      validation: "ValidationError"    # 422
+      unauthorized: "UnauthorizedError" # 401
+      forbidden: "ForbiddenError"      # 403
+      not_found: "NotFoundError"       # 404
+      conflict: "ConflictError"        # 422 (RealWorld 사양 — 409 미사용)
+    validation: "manual"               # 명시 검증 — zod 도입은 ISS-BE-INIT-01 결정
+    logging: "pino"                    # JSON 로그 + traceId (R-N-03)
 
   common:
     git_commit_format: "conventional"  # conventional (feat/fix/chore) | free
@@ -103,19 +94,19 @@ conventions:
 # ============================================================
 commands:
   frontend:
-    install: ""                        # 예: "npm install" | "bun install" | "yarn"
-    build: ""                          # 예: "npm run build" | "vite build"
-    test: ""                           # 예: "npm test" | "vitest run"
-    dev: ""                            # 예: "npm run dev" | "vite"
-    lint: ""                           # 예: "npm run lint" | "eslint ."
-    typecheck: ""                      # 예: "tsc --noEmit"
+    install: "pnpm --filter @conduit/frontend install"
+    build: "pnpm --filter @conduit/frontend build"
+    test: "pnpm --filter @conduit/frontend test"
+    dev: "pnpm --filter @conduit/frontend dev"
+    lint: "pnpm --filter @conduit/frontend lint"
+    typecheck: "pnpm --filter @conduit/frontend typecheck"
   backend:
-    install: ""                        # 예: "./gradlew build -x test" | "pip install -r requirements.txt"
-    build: ""                          # 예: "./gradlew build" | "mvn package"
-    test: ""                           # 예: "./gradlew test" | "pytest"
-    run: ""                            # 예: "./gradlew bootRun" | "uvicorn app:app"
-    lint: ""                           # 예: "./gradlew check"
-  e2e: ""                              # 예: "npx playwright test"
+    install: "pnpm --filter @conduit/backend install"
+    build: "pnpm --filter @conduit/backend build"
+    test: "pnpm --filter @conduit/backend test"
+    run: "pnpm --filter @conduit/backend dev"     # devkit dev backend → tsx watch
+    lint: "pnpm --filter @conduit/backend lint"
+  e2e: "pnpm --filter @conduit/e2e test"
 
 collaboration:
   vcs: "github"                        # 필수

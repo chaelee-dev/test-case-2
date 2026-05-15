@@ -1,0 +1,17 @@
+{
+  "name": "conduit-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "RealWorld Conduit — Medium clone (SPA + REST API). pnpm workspaces.",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "echo 'lint: pending ISS-INFRA-02' && exit 0"
+  }
+}
