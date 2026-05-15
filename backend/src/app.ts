@@ -3,6 +3,7 @@ import express, { type Express, type Request, type Response, type Router } from 
 import { corsMiddleware } from './middleware/cors.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import { articlesRouter } from './routes/articles.js';
 import { profilesRouter } from './routes/profiles.js';
 import { usersRouter, userRouter } from './routes/users.js';
 
@@ -28,6 +29,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
   app.use('/api/users', usersRouter);
   app.use('/api/user', userRouter);
   app.use('/api/profiles', profilesRouter);
+  app.use('/api/articles', articlesRouter);
 
   options.mountExtraRoutes?.(app);
 
