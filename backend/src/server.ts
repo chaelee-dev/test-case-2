@@ -1,21 +1,13 @@
-import express, { type Express, type Request, type Response } from 'express';
+import { createApp } from './app.js';
+import { getEnv } from './config/env.js';
+import { logger } from './middleware/requestLogger.js';
 
-export function createApp(): Express {
-  const app = express();
-  app.use(express.json());
-
-  app.get('/health', (_req: Request, res: Response) => {
-    res.status(200).json({ status: 'ok' });
-  });
-
-  return app;
-}
-
-const PORT = Number(process.env.PORT ?? 3000);
+export { createApp };
 
 if (process.env.NODE_ENV !== 'test') {
+  const env = getEnv();
   const app = createApp();
-  app.listen(PORT, () => {
-    console.log(`[conduit/backend] listening on :${PORT}`);
+  app.listen(env.PORT, () => {
+    logger.info(`[conduit/backend] listening on :${env.PORT}`);
   });
 }

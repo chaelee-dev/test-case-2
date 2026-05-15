@@ -1,6 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../server.js';
+import { createApp } from '../app.js';
+
+beforeAll(() => {
+  process.env.DATABASE_URL ??= 'file:./test.db';
+  process.env.JWT_SECRET ??= 'a'.repeat(32);
+});
 
 describe('GET /health', () => {
   it('returns 200 with {status:"ok"}', async () => {
