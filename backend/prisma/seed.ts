@@ -1,26 +1,25 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 /**
- * 멱등 seed — upsert 기반. 2회 실행해도 동일 결과.
- * User 2명 / Tag 5개 / Article 3건 / 각 Article에 tag 2개씩.
- *
- * 비밀번호: "password" — bcrypt cost=4의 stub hash로 직접 작성. 본 hash는
- * 실 bcrypt(`$2b$04$...`) 형식과 호환되지 않으므로 ISS-BE-USR-01에서 실 bcrypt로 교체 필요.
- * 본 이슈 acceptance(seed 멱등 + UNIQUE 동작)는 hash 정확성에 의존하지 않음.
+ * 멱등 seed — upsert. 2회 실행해도 동일 결과.
+ * 실 bcrypt(cost=12) 사용 — 로컬에서 'password'로 로그인 가능.
  */
 
 const prisma = new PrismaClient();
-
-const STUB_HASH = '$2b$04$dev_seed_only_replace_with_real_bcrypt_in_USR_01';
+const BCRYPT_COST = Number(process.env.BCRYPT_COST ?? 12);
+const DEFAULT_PASSWORD = 'password';
 
 async function main() {
+  const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_COST);
+
   const userA = await prisma.user.upsert({
     where: { username: 'conduit_admin' },
     update: {},
     create: {
       username: 'conduit_admin',
       email: 'admin@conduit.example',
-      passwordHash: STUB_HASH,
+      passwordHash,
       bio: 'Conduit admin (seed)',
       image: null,
     },
@@ -32,7 +31,7 @@ async function main() {
     create: {
       username: 'jane_dev',
       email: 'jane@conduit.example',
-      passwordHash: STUB_HASH,
+      passwordHash,
       bio: 'Frontend developer',
       image: null,
     },
@@ -80,15 +79,15 @@ async function main() {
         description: a.description,
         body: a.body,
         authorId: a.authorId,
-        tags: {
-          create: a.tagIds.map((tagId) => ({ tagId })),
-        },
+        tags: { create: a.tagIds.map((tagId) => ({ tagId })) },
       },
     });
   }
 
   // eslint-disable-next-line no-console
-  console.info(`seed complete: users=2, tags=${tags.length}, articles=${articles.length}`);
+  console.info(
+    `seed complete: users=2, tags=${tags.length}, articles=${articles.length}, password='${DEFAULT_PASSWORD}'`,
+  );
 }
 
 main()
