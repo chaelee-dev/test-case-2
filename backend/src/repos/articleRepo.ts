@@ -15,6 +15,27 @@ export interface ListFilters {
   offset: number;
 }
 
+export async function listByAuthorIds(
+  authorIds: number[],
+  limit: number,
+  offset: number,
+): Promise<{ articles: ArticleWithRelations[]; total: number }> {
+  if (authorIds.length === 0) return { articles: [], total: 0 };
+  const prisma = getPrisma();
+  const where = { authorId: { in: authorIds } };
+  const [articles, total] = await Promise.all([
+    prisma.article.findMany({
+      where,
+      include: { author: true, tags: { include: { tag: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    }),
+    prisma.article.count({ where }),
+  ]);
+  return { articles, total };
+}
+
 export async function listArticles(
   filters: ListFilters,
 ): Promise<{ articles: ArticleWithRelations[]; total: number }> {

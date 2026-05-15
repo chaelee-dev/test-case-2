@@ -112,6 +112,34 @@ export async function list(
   return { articles: views, articlesCount: total };
 }
 
+const FeedQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+export async function feed(
+  viewerId: number,
+  rawQuery: unknown,
+): Promise<{ articles: ArticleView[]; articlesCount: number }> {
+  const parsed = FeedQuerySchema.safeParse(rawQuery);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    throw new ValidationError((issue?.path[0] as string) ?? 'query', issue?.message ?? 'invalid');
+  }
+  const env = getEnv();
+  if (parsed.data.limit > env.MAX_PAGE_LIMIT) {
+    throw new ValidationError('limit', `must be <=${env.MAX_PAGE_LIMIT}`);
+  }
+  const followedIds = await followRepo.findFollowedIds(viewerId);
+  const { articles, total } = await articleRepo.listByAuthorIds(
+    followedIds,
+    parsed.data.limit,
+    parsed.data.offset,
+  );
+  const views = await buildViews(articles, viewerId, false);
+  return { articles: views, articlesCount: total };
+}
+
 export async function getBySlug(slug: string, viewerId: number | null): Promise<ArticleView> {
   const article = await articleRepo.findBySlug(slug);
   if (!article) throw new NotFoundError('article not found');

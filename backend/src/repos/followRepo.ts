@@ -19,3 +19,11 @@ export async function remove(followerId: number, followeeId: number): Promise<vo
   await getPrisma()
     .follow.deleteMany({ where: { followerId, followeeId } });
 }
+
+export async function findFollowedIds(followerId: number): Promise<number[]> {
+  const rows = await getPrisma().follow.findMany({
+    where: { followerId },
+    select: { followeeId: true },
+  });
+  return rows.map((r) => r.followeeId);
+}
