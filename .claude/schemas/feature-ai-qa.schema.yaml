@@ -1,0 +1,90 @@
+doc_type: feature-ai-qa
+extends: _common
+title_pattern: "^# .+ — AI QA Report"
+gate_value: feature
+filename_pattern: "^(feat|mod|bug|design)-[a-z0-9-]+\\.ai-qa-report\\.md$"
+
+frontmatter:
+  doc_type: { value: feature-ai-qa }
+  gate: { value: feature }
+  # ADR-0011: AI 게이트 5축 확장 — UI/FE 변경 PR 브라우저 골든패스 실증 의무화
+  ui_changed:
+    required: true
+    severity: BLOCK
+    enum: [true, false]
+    description: "UI/FE 변경 포함 여부. true이면 5번째 축(브라우저 골든패스) BLOCK 활성화"
+  screenshots:
+    required_when: "ui_changed == true"
+    severity: BLOCK
+    type: array
+    min_length: 1
+    description: "ui_changed=true일 때 변경된 화면별 1장 이상 (경로 배열)"
+  golden_path_verified:
+    required_when: "ui_changed == true"
+    severity: BLOCK
+    enum: [true, false]
+    required_value: true
+    description: "ui_changed=true일 때 브라우저에서 골든패스 1개 이상 실제 수행했음을 명시"
+
+sections:
+  - { heading: "## 변경 이력", required: true, severity: BLOCK }              # ADR-0019 — sections[0]
+  - { heading: "## 0. Verdict", required: true, severity: BLOCK }
+  - { heading: "## 1. Test Plan 4블록", required: true, severity: BLOCK }
+  - { heading: "## 2. AI 게이트 5축", required: true, severity: BLOCK }
+  - { heading: "## 3. 시나리오 인용", required: true, severity: BLOCK, must_contain_table: true }
+  - { heading: "## 4. FAIL 항목", required: false, severity: INFO }
+  - { heading: "## 5. 발견 사항", required: false, severity: INFO }
+  - { heading: "## 6. UI/FE 변경 검증", required_when: "ui_changed == true", severity: BLOCK }
+
+verdict_must_contain:
+  in_section: "## 0. Verdict"
+  must_contain:
+    - { label: "verdict", pattern: "(PASS|FAIL)", severity: BLOCK }
+    - { label: "at", pattern: "[0-9]{4}-[0-9]{2}-[0-9]{2}", severity: BLOCK }
+    - { label: "ui_changed", pattern: "(true|false)", severity: BLOCK }
+    # ADR-0032: PR 본문에 Flow Mode 명시 — flow-feature 모드 자동 결정 사후 추적용
+    - { label: "Flow Mode", pattern: "(add|modify|bug|design)", severity: BLOCK, description: "ADR-0032 — /flow-feature 모드 자동 결정 결과 명시" }
+    - { label: "Mode Decision Trace", required: true, severity: BLOCK, description: "ADR-0032 — 발동된 규칙 번호 + 시그널 (예: '규칙 4 (부정 시그널 0건, type:feature 라벨)')" }
+
+test_plan_must_contain:
+  in_section: "## 1. Test Plan 4블록"
+  required_subsections:
+    - "### Build"
+    - "### Automated tests"
+    - "### Manual verification"
+    - "### DoD coverage"
+  severity: BLOCK
+  description: "D-06 Test Plan 4블록 강제"
+
+# ADR-0011: 4축 → 5축. 5번째 축은 ui_changed=true일 때 BLOCK, false일 때 N/A 명시 허용.
+ai_gate_must_contain:
+  in_section: "## 2. AI 게이트 5축"
+  must_contain:
+    - { label: "자동 테스트 통과", required: true, severity: BLOCK }
+    - { label: "AI 코드 리뷰 PASS", required: true, severity: BLOCK }
+    - { label: "Test Plan 4블록 첨부", required: true, severity: BLOCK }
+    - { label: "시크릿·보안 스캔 통과", required: true, severity: BLOCK }
+    - { label: "브라우저 골든패스 실증", required: true, severity: BLOCK, conditional: "ui_changed==true ? PASS : N/A" }
+
+# ADR-0011: ui_changed=true일 때만 활성화되는 BLOCK
+ui_change_verification:
+  in_section: "## 6. UI/FE 변경 검증"
+  required_when: "ui_changed == true"
+  severity: BLOCK
+  must_contain:
+    - { label: "gstack_qa_used", pattern: "(gstack /qa|browse 바이너리|playwright)", severity: BLOCK }
+    - { label: "console_errors", pattern: "(0개|none|N/A 사전 합의)", severity: BLOCK }
+  must_contain_table: true
+
+tables:
+  - in_section: "## 3. 시나리오 인용"
+    columns: [시나리오, 출처, 결과]
+    severity: BLOCK
+  - in_section: "## 6. UI/FE 변경 검증"
+    columns: [화면, 시나리오, 스크린샷경로]
+    severity: BLOCK
+    required_when: "ui_changed == true"
+
+id_required:
+  - AC-ID
+  - R-ID

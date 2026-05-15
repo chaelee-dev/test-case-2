@@ -1,0 +1,25 @@
+doc_type: scaffolding
+extends: _common
+title_pattern: "^# .+ — Scaffolding"
+gate_value: C
+filename_pattern: "^[a-z][a-z0-9-]+\\.md$"
+location: "docs/planning/12-scaffolding/"
+
+frontmatter:
+  doc_type: { value: scaffolding }
+  gate: { value: C }
+
+sections:
+  - { heading: "## 변경 이력", required: true, severity: BLOCK }              # ADR-0019 — sections[0], 번호 제거
+  - { heading: "## 1. 디렉토리 트리", required: true, severity: BLOCK, must_contain_codeblock: true }
+  - { heading: "## 2. 패키지 명명 규칙", required: true, severity: BLOCK }
+  - { heading: "## 3. 디자인 패턴 결정", required: true, severity: BLOCK }
+  - { heading: "## 4. 모듈 경계 (08-lld-module-spec와 fan-out)", required: true, severity: BLOCK, must_contain_table: true }
+  - { heading: "## 5. 빌드·실행", required: true, severity: BLOCK, must_contain_codeblock: true }
+  - { heading: "## 6. 환경 변수 / 설정 분리", required: true, severity: BLOCK, must_contain_table: true }
+
+design_pattern_must_contain:
+  in_section: "## 3. 디자인 패턴 결정"
+  must_contain:
+    - { label: "선택 패턴", pattern: "(Atomic|DDD|FSD|MVC|Layered|Hexagonal)", severity: BLOCK }
+    - { label: "이유", required: true, severity: BLOCK }
