@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { getEnv } from '../config/env.js';
-import { NotFoundError, ValidationError } from '../errors/index.js';
+import { ForbiddenError, NotFoundError, ValidationError } from '../errors/index.js';
 import * as articleRepo from '../repos/articleRepo.js';
 import type { ArticleWithRelations } from '../repos/articleRepo.js';
 import * as favoriteRepo from '../repos/favoriteRepo.js';
@@ -127,6 +127,48 @@ async function generateUniqueSlug(title: string): Promise<string> {
     if (!(await articleRepo.existsBySlug(candidate))) return candidate;
   }
   throw new ValidationError('slug', 'could not generate unique slug after 3 attempts');
+}
+
+export async function update(
+  viewerId: number,
+  slug: string,
+  patch: { title?: string; description?: string; body?: string },
+): Promise<ArticleView> {
+  const article = await articleRepo.findBySlug(slug);
+  if (!article) throw new NotFoundError('article not found');
+  if (article.authorId !== viewerId) throw new ForbiddenError();
+
+  const updates: { slug?: string; title?: string; description?: string; body?: string } = {};
+  if (patch.title !== undefined && patch.title !== article.title) {
+    if (patch.title.trim().length === 0) throw new ValidationError('title', "can't be empty");
+    updates.title = patch.title;
+    updates.slug = await generateUniqueSlug(patch.title);
+  }
+  if (patch.description !== undefined && patch.description !== article.description) {
+    if (patch.description.trim().length === 0) {
+      throw new ValidationError('description', "can't be empty");
+    }
+    updates.description = patch.description;
+  }
+  if (patch.body !== undefined && patch.body !== article.body) {
+    if (patch.body.trim().length === 0) throw new ValidationError('body', "can't be empty");
+    updates.body = patch.body;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    throw new ValidationError('body', 'empty patch');
+  }
+
+  const updated = await articleRepo.updateById(article.id, updates);
+  const views = await buildViews([updated], viewerId, true);
+  return views[0]!;
+}
+
+export async function remove(viewerId: number, slug: string): Promise<void> {
+  const article = await articleRepo.findBySlug(slug);
+  if (!article) throw new NotFoundError('article not found');
+  if (article.authorId !== viewerId) throw new ForbiddenError();
+  await articleRepo.deleteById(article.id);
 }
 
 export async function create(

@@ -81,3 +81,18 @@ export async function existsBySlug(slug: string): Promise<boolean> {
   const found = await getPrisma().article.findUnique({ where: { slug }, select: { id: true } });
   return found !== null;
 }
+
+export async function updateById(
+  id: number,
+  patch: { slug?: string; title?: string; description?: string; body?: string },
+): Promise<ArticleWithRelations> {
+  return getPrisma().article.update({
+    where: { id },
+    data: patch,
+    include: { author: true, tags: { include: { tag: true } } },
+  });
+}
+
+export async function deleteById(id: number): Promise<void> {
+  await getPrisma().article.delete({ where: { id } });
+}
