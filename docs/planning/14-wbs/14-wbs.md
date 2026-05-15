@@ -493,184 +493,190 @@ labels:
 sprints:
   - number: 1
     title: "Sprint 1 — Foundation + Auth"
+    milestone: "Sprint 1 — Foundation + Auth"
     start: "2026-05-18"
     end:   "2026-05-22"
+    due:   "2026-05-22"
     goal:  "모노레포·CI 부트스트랩 + 인증 도메인. R-F-01~03 + R-N-02·03·04 베이스 구축."
     issues:
       - slug: ISS-INFRA-01
-        title: "[Sprint 1] 모노레포·devkit·docker-compose 부트스트랩"
-        labels: [type:chore, area:infra, P0, status:todo]
+        title: "chore(infra): 모노레포·devkit·docker-compose 부트스트랩"
+        labels: [type:chore, area:infra, priority:P0]
         effort: 1d
         r_ids: []
         f_ids: []
         body_ref: "docs/planning/14-wbs/14-wbs.md#issue-iss-infra-01"
       - slug: ISS-INFRA-02
-        title: "[Sprint 1] ESLint·Prettier·Husky·lint-staged"
-        labels: [type:chore, area:infra, P0, status:todo]
+        title: "chore(infra): ESLint·Prettier·Husky·lint-staged 설정"
+        labels: [type:chore, area:infra, priority:P0]
         effort: 0.5d
         r_ids: []
         f_ids: []
       - slug: ISS-CI-01
-        title: "[Sprint 1] GitHub Actions CI baseline + Newman placeholder"
-        labels: [type:chore, area:infra, P0, status:todo]
+        title: "chore(infra): GitHub Actions CI baseline + Newman placeholder"
+        labels: [type:chore, area:infra, priority:P0]
         effort: 0.5d
         r_ids: [R-N-01]
         f_ids: []
       - slug: ISS-BE-INIT-01
-        title: "[Sprint 1] Express app + 미들웨어 체인 + ErrorMapper"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Express app + 미들웨어 체인 + ErrorMapper"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-N-03]
         f_ids: []
       - slug: ISS-BE-INIT-02
-        title: "[Sprint 1] Prisma schema + 마이그레이션 + seed"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Prisma schema + 마이그레이션 + seed"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-N-04, R-N-05]
         f_ids: []
       - slug: ISS-BE-AUTH-01
-        title: "[Sprint 1] JwtService + AuthMiddleware (Token 헤더 강제)"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): JwtService + AuthMiddleware (Token 헤더 강제)"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 0.5d
         r_ids: [R-N-02]
         f_ids: [F-01]
       - slug: ISS-BE-USR-01
-        title: "[Sprint 1] UserService.register + login"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): UserService register + login"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-F-01, R-F-02]
         f_ids: [F-01]
       - slug: ISS-BE-USR-02
-        title: "[Sprint 1] GET/PUT /api/user"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): GET·PUT /api/user (현재 사용자 조회·갱신)"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 0.5d
         r_ids: [R-F-03]
         f_ids: [F-01, F-02]
 
   - number: 2
     title: "Sprint 2 — BE 도메인 + Newman"
+    milestone: "Sprint 2 — BE 도메인 + Newman"
     start: "2026-05-25"
     end:   "2026-05-29"
+    due:   "2026-05-29"
     goal:  "BE 19 엔드포인트 완성 + Newman 23 케이스 PASS."
     issues:
       - slug: ISS-BE-PRO-01
-        title: "[Sprint 2] Profile + Follow/Unfollow"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Profile 조회 + Follow·Unfollow"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-F-04, R-F-05]
         f_ids: [F-02, F-08]
       - slug: ISS-BE-ART-01
-        title: "[Sprint 2] Articles 목록 + 상세 GET"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Articles 목록 + 상세 GET"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-F-06, R-F-08]
         f_ids: [F-03, F-06]
       - slug: ISS-BE-ART-02
-        title: "[Sprint 2] Articles POST + slug 생성기"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Articles POST + slug 생성기"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-F-09]
         f_ids: [F-05]
       - slug: ISS-BE-ART-03
-        title: "[Sprint 2] Articles PUT + DELETE + cascade"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Articles PUT·DELETE + cascade"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-F-10, R-F-11, R-N-04]
         f_ids: [F-05]
       - slug: ISS-BE-ART-04
-        title: "[Sprint 2] Your Feed"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Your Feed (GET /api/articles/feed)"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 0.5d
         r_ids: [R-F-07]
         f_ids: [F-04]
       - slug: ISS-BE-FAV-01
-        title: "[Sprint 2] Favorite POST/DELETE"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Favorite POST·DELETE"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 0.5d
         r_ids: [R-F-12]
         f_ids: [F-07]
       - slug: ISS-BE-CMT-01
-        title: "[Sprint 2] Comments CRUD"
-        labels: [type:feature, area:backend, P0, status:todo]
+        title: "feat(backend): Comments CRUD"
+        labels: [type:feature, area:backend, priority:P0]
         effort: 1d
         r_ids: [R-F-13, R-F-14, R-F-15]
         f_ids: [F-09]
       - slug: ISS-BE-TAG-01
-        title: "[Sprint 2] Tags GET"
-        labels: [type:feature, area:backend, P1, status:todo]
+        title: "feat(backend): Tags GET (DISTINCT)"
+        labels: [type:feature, area:backend, priority:P1]
         effort: 0.5d
         r_ids: [R-F-16]
         f_ids: [F-10]
       - slug: ISS-OPS-02
-        title: "[Sprint 2] Newman CI + Postman 컬렉션 + 23 케이스 PASS"
-        labels: [type:chore, area:infra, P0, status:todo]
+        title: "chore(infra): Newman CI + Postman 컬렉션 + 23 케이스 PASS"
+        labels: [type:chore, area:infra, priority:P0]
         effort: 1d
         r_ids: [R-N-01]
         f_ids: []
 
   - number: 3
     title: "Sprint 3 — Frontend SPA + E2E + Polish"
+    milestone: "Sprint 3 — Frontend SPA + E2E + Polish"
     start: "2026-06-01"
     end:   "2026-06-05"
+    due:   "2026-06-05"
     goal:  "FE 7 라우트 + E2E 골든패스 + XSS 방어 + Docker compose 검증."
     issues:
       - slug: ISS-FE-INIT-01
-        title: "[Sprint 3] Vite + RouterShell + AuthCtx + ApiClient"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): Vite + RouterShell + AuthCtx + ApiClient"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 1d
         r_ids: [R-F-17, R-N-02]
         f_ids: [F-11]
       - slug: ISS-FE-AUTH-01
-        title: "[Sprint 3] LoginPage + RegisterPage + ErrorList"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): LoginPage + RegisterPage + ErrorList"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 0.5d
         r_ids: [R-F-01, R-F-02]
         f_ids: [F-01]
       - slug: ISS-FE-HOME-01
-        title: "[Sprint 3] HomePage + ArticleCard + FeedTabs + Pagination"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): HomePage + ArticleCard + FeedTabs + Pagination"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 1d
         r_ids: [R-F-06, R-F-07, R-F-16, R-F-19]
         f_ids: [F-03, F-04, F-10]
       - slug: ISS-FE-ART-01
-        title: "[Sprint 3] ArticlePage + 마크다운 sanitizer (XSS 방어)"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): ArticlePage + 마크다운 sanitizer (XSS 방어)"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 1d
         r_ids: [R-F-08, R-F-18, R-N-03]
         f_ids: [F-06]
       - slug: ISS-FE-EDIT-01
-        title: "[Sprint 3] EditorPage Create + Edit + Delete"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): EditorPage Create + Edit + Delete"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 1d
         r_ids: [R-F-09, R-F-10, R-F-11]
         f_ids: [F-05]
       - slug: ISS-FE-PROFILE-01
-        title: "[Sprint 3] ProfilePage + SettingsPage + Follow/Favorite buttons"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): ProfilePage + SettingsPage + Follow·Favorite buttons"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 1d
         r_ids: [R-F-03, R-F-04, R-F-05, R-F-12]
         f_ids: [F-02, F-07, F-08]
       - slug: ISS-FE-CMT-01
-        title: "[Sprint 3] CommentForm + CommentItem"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): CommentForm + CommentItem"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 0.5d
         r_ids: [R-F-13, R-F-14, R-F-15]
         f_ids: [F-09]
       - slug: ISS-FE-ROUTE-01
-        title: "[Sprint 3] protectedRoute + returnUrl + 404"
-        labels: [type:feature, area:frontend, P0, status:todo]
+        title: "feat(frontend): protectedRoute + returnUrl + 404"
+        labels: [type:feature, area:frontend, priority:P0]
         effort: 0.5d
         r_ids: [R-F-17]
         f_ids: [F-11]
       - slug: ISS-E2E-01
-        title: "[Sprint 3] Playwright 12 골든패스 + XSS + 키보드 a11y"
-        labels: [type:test, area:frontend, P0, status:todo]
+        title: "test(frontend): Playwright 12 골든패스 + XSS + 키보드 a11y"
+        labels: [type:test, area:frontend, priority:P0]
         effort: 1d
         r_ids: [R-N-06, R-F-18]
         f_ids: [F-01, F-02, F-03, F-04, F-05, F-06, F-07, F-08, F-09, F-10, F-11]
       - slug: ISS-OPS-09
-        title: "[Sprint 3] docker-compose 운영 점검 + retro + docs-update"
-        labels: [type:chore, area:infra, P1, status:todo]
+        title: "chore(infra): docker-compose 운영 점검 + retro + docs-update"
+        labels: [type:chore, area:infra, priority:P1]
         effort: 0.5d
         r_ids: []
         f_ids: []
