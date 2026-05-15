@@ -2,9 +2,18 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 
 import { optionalAuth, requireAuth } from '../middleware/auth.js';
 import { ValidationError } from '../errors/index.js';
-import { list, getBySlug, create, update, remove } from '../services/articleService.js';
+import { list, getBySlug, create, update, remove, feed } from '../services/articleService.js';
 
 export const articlesRouter = Router();
+
+articlesRouter.get('/feed', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await feed(req.user!.id, req.query);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+});
 
 articlesRouter.get('/', optionalAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
