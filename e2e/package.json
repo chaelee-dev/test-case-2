@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
-    "test:newman": "echo 'newman: pending Sprint 2 (ISS-CI-01 placeholder)' && exit 0",
+    "test:newman": "tsx newman/run.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
+    "@types/newman": "^5.3.6",
     "newman": "^6.1.2",
+    "tsx": "^4.7.2",
     "typescript": "^5.4.5"
   }
 }
