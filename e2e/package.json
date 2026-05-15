@@ -6,7 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:newman": "echo 'newman: pending Sprint 2 (ISS-CI-01 placeholder)' && exit 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
