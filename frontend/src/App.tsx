@@ -1,12 +1,11 @@
+import { RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthProvider.js';
+import { router } from './router/routes.js';
+
 export function App() {
   return (
-    <div className="home-page">
-      <div className="banner">
-        <div className="container">
-          <h1 className="logo-font">Conduit boot OK</h1>
-          <p>monorepo bootstrap success (Issue #1 — ISS-INFRA-01)</p>
-        </div>
-      </div>
-    </div>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }
